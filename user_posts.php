@@ -17,7 +17,7 @@ if($id && !empty($posts)) {
 	$title = 'Посты пользователя @' . $posts[0]['login'];
 }
 
-
 include_once 'inc/header.php';
+if(logged_in()) include_once 'inc/tweet_form.php';
 include_once 'inc/posts.php';
 include_once 'inc/footer.php';

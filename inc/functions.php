@@ -41,10 +41,14 @@ function db_query($sql, $exec = false) {
 	return db()->query($sql);
 }
 
-function get_posts($user_id = 0) {
-	if($user_id > 0 ) return db_query("SELECT posts.*, users.name, users.login, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id WHERE posts.user_id = $user_id")->fetchAll();
+function get_posts($user_id = 0, $sort = false) {
+	$sorting = 'DESC';
+	if($sort) $sorting = 'ASC';
+	if($user_id > 0 ) return db_query("SELECT posts.*, users.name, users.login, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id WHERE posts.user_id = $user_id ORDER BY `posts`.`date` $sorting")->fetchAll();
 
-	return db_query("SELECT posts.*, users.name, users.login, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id")->fetchAll();
+	$sql = "SELECT posts.*, users.name, users.login, users.avatar FROM `posts` JOIN `users` ON users.id = posts.user_id  ORDER BY `posts`.`date` $sorting";
+
+	return db_query($sql)->fetchAll();
 }
 
 function get_user_info($login) {
@@ -84,6 +88,11 @@ function register_user ($auth_data) {
 	debug($auth_data, true);
 }
 
+function redirect($link = HOST) {
+	header("Location: $link");
+	die;
+}
+
 function login ($auth_data) {
 	if(empty($auth_data) || !isset($auth_data['login']) || empty($auth_data['login'])) return false;
 
@@ -114,4 +123,29 @@ function get_error_message() {
 	}
 
 	return $error;
+}
+
+function logged_in() {
+	return isset($_SESSION['user']['id']) && !empty($_SESSION['user']['id']);
+}
+
+function add_post($text, $image) {
+	$text = trim($text);
+	if(mb_strlen($text) > 250 ) {
+		$text = mb_substr($text, 0, 240) . ' ...';
+	}
+
+	$user_id = $_SESSION['user']['id'];
+	$sql = "INSERT INTO `posts` (`id`, `user_id`, `text`, `image`, `date`) VALUES (NULL, '$user_id', '$text', '$image', NULL )";
+	return db_query($sql, true);
+
+
+}
+
+function delete_post($id) {
+	$id = (int) $id;
+	if (!is_int($id) || $id <= 0 ) return false;
+	$user_id = $_SESSION['user']['id'];
+	$sql = "DELETE FROM `posts` WHERE `posts` . `id` = $id AND `user_id` = $user_id";
+	return db_query($sql, true);
 }

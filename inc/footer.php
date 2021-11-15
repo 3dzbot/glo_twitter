@@ -1,6 +1,7 @@
 </main>
 </div>
 
+<?php if(!logged_in()) : ?>
 <div class="modal overlay">
 	<div class="container modal__body" id="login-modal">
 		<div class="modal-close">
@@ -24,6 +25,7 @@
 		</section>
 	</div>
 </div>
+<?php endif; ?>
 <script src="<?= get_url('js/scripts.js') ?>"></script>
 <?php if($error) echo "<script>openModal();</script>"  ?>
 </body>
